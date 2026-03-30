@@ -1,0 +1,50 @@
+{# Root "My files" link #}
+<a class="sidebar-item {{ 'active' if not current_folder and not query }}"
+   href="/library?view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}"
+   hx-get="/library?view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}&partial=1"
+   hx-target="#main-content"
+   hx-push-url="/library?view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}"
+   style="margin-bottom:4px">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <path d="M2 6L8 2L14 6V13C14 13.55 13.55 14 13 14H3C2.45 14 2 13.55 2 13V6Z" fill="var(--color-text-secondary)" opacity="0.5"/>
+  </svg>
+  <span>My files</span>
+</a>
+
+{# Recursive folder tree macro #}
+{% macro render_tree(nodes, depth=0) %}
+  {% for node in nodes %}
+    <a class="sidebar-item {{ 'active' if current_folder == node.id }}"
+       href="/library?folder={{ node.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}"
+       hx-get="/library?folder={{ node.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}&partial=1"
+       hx-target="#main-content"
+       hx-push-url="/library?folder={{ node.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}"
+       style="padding-left:{{ 12 + depth * 16 }}px">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        {% if current_folder == node.id %}
+          <path d="M1.5 3.5C1.5 2.95 1.95 2.5 2.5 2.5H6L7.5 4H13.5C14.05 4 14.5 4.45 14.5 5V5.5H3.5L1.5 12.5V3.5Z" fill="var(--color-text-secondary)" opacity="0.6"/>
+        {% else %}
+          <path d="M2 3C1.45 3 1 3.45 1 4V12C1 12.55 1.45 13 2 13H14C14.55 13 15 12.55 15 12V5C15 4.45 14.55 4 14 4H8L6.5 2.5H2Z" fill="var(--color-text-secondary)" opacity="0.5"/>
+        {% endif %}
+      </svg>
+      <span>{{ node.name }}</span>
+    </a>
+    {% if node.children %}
+      {{ render_tree(node.children, depth + 1) }}
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
+
+{{ render_tree(folder_tree) }}
+
+{# Stats footer #}
+<div class="sidebar-footer">
+  {{ stats.total }} documents, {{ stats.folders }} folders<br>
+  {{ stats.notebooks }} notebooks, {{ stats.pdfs }} PDFs, {{ stats.epubs }} ePubs
+  <br>
+  <a href="/library?view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}&refresh=1"
+     class="btn-sync"
+     style="display:inline-block; text-decoration:none; text-align:center;">
+    Sync
+  </a>
+</div>

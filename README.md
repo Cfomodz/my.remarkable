@@ -1,16 +1,32 @@
-# React + Vite
+# my.remarkable
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based library browser and notebook splitter for the reMarkable tablet. Built with Python (FastAPI + Jinja2 + htmx).
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-## React Compiler
+2. Copy `.env.example` to `.env` and add your one-time code from
+   [my.remarkable.com/device/browser/connect](https://my.remarkable.com/device/browser/connect)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. Register your device (exchange the one-time code for a persistent device token):
 
-## Expanding the ESLint configuration
+   ```
+   uv run register_device.py
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+4. Start the server:
+
+   ```
+   uv run server.py
+   ```
+
+5. Open [http://localhost:8000](http://localhost:8000)
+
+## Features
+
+- Browse your reMarkable library (folders, notebooks, PDFs, ePubs)
+- Grid and list views
+- Search and sort
+- Split multi-page notebooks into individual page notebooks
+- Light and dark mode (follows system preference)

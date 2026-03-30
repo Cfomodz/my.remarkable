@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="register-page">
+  <div class="register-card">
+    <h1>my.remarkable</h1>
+    <p class="subtitle">Connect your reMarkable tablet to get started.</p>
+    <ol>
+      <li>Go to <strong>my.remarkable.com/device/browser/connect</strong></li>
+      <li>Enter the one-time code shown there below</li>
+    </ol>
+    <form method="POST" action="/register">
+      <input
+        class="code-input"
+        type="text"
+        name="code"
+        placeholder="Enter 8-letter code"
+        maxlength="8"
+        autocomplete="off"
+        required
+      >
+      <button class="btn-connect" type="submit">Connect</button>
+    </form>
+    {% if error %}
+    <p class="error-msg">{{ error }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

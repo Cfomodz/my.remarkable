@@ -1,0 +1,126 @@
+{# ── Toolbar ── #}
+<div class="toolbar">
+  <span>{{ total_items }} item{{ 's' if total_items != 1 }}</span>
+  <span class="pipe">|</span>
+
+  {% set base_url = "/library?folder=" ~ (current_folder or '') ~ "&q=" ~ query ~ "&view=" ~ view %}
+
+  <button class="sort-link"
+          hx-get="{{ base_url }}&sort=name&dir={{ 'desc' if sort_by == 'name' and sort_dir == 'asc' else 'asc' }}&partial=1"
+          hx-target="#main-content"
+          hx-push-url="{{ base_url }}&sort=name&dir={{ 'desc' if sort_by == 'name' and sort_dir == 'asc' else 'asc' }}">
+    Name {{ '↑' if sort_by == 'name' and sort_dir == 'asc' else ('↓' if sort_by == 'name' else '') }}
+  </button>
+
+  <button class="sort-link"
+          hx-get="{{ base_url }}&sort=lastModified&dir={{ 'asc' if sort_by == 'lastModified' and sort_dir == 'desc' else 'desc' }}&partial=1"
+          hx-target="#main-content"
+          hx-push-url="{{ base_url }}&sort=lastModified&dir={{ 'asc' if sort_by == 'lastModified' and sort_dir == 'desc' else 'desc' }}">
+    Modified {{ '↑' if sort_by == 'lastModified' and sort_dir == 'asc' else ('↓' if sort_by == 'lastModified' else '') }}
+  </button>
+</div>
+
+{# ── Content area ── #}
+<div class="content-area">
+
+{% if query %}
+  <div class="search-hint">Results for &ldquo;<strong>{{ query }}</strong>&rdquo;</div>
+{% endif %}
+
+{% if total_items == 0 %}
+  <div class="empty-state">
+    {{ "No documents match your search." if query else "This folder is empty." }}
+  </div>
+
+{% elif view == 'grid' %}
+  <div class="doc-grid">
+    {# ── Folders ── #}
+    {% for f in folders %}
+      <a class="card"
+         href="/library?folder={{ f.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}"
+         hx-get="/library?folder={{ f.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}&partial=1"
+         hx-target="#main-content"
+         hx-push-url="/library?folder={{ f.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}">
+        <div class="card-header">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 3C1.45 3 1 3.45 1 4V12C1 12.55 1.45 13 2 13H14C14.55 13 15 12.55 15 12V5C15 4.45 14.55 4 14 4H8L6.5 2.5H2Z" fill="var(--color-text-secondary)" opacity="0.5"/>
+          </svg>
+          <span class="badge badge-default">Folder</span>
+        </div>
+        <div class="card-title">{{ f.name }}</div>
+        <div class="card-meta">{{ f.rel_time }}</div>
+      </a>
+    {% endfor %}
+
+    {# ── Documents ── #}
+    {% for d in docs %}
+      <div class="card">
+        <div class="card-header">
+          <span class="doc-icon doc-icon-{{ d.file_type }}">{{ d.type_label }}</span>
+          <span class="badge badge-{{ d.badge_variant }}">
+            {{ (d.pages | string ~ 'p') if d.pages else d.file_type }}
+          </span>
+          {% if d.can_split %}
+            <button class="btn-split"
+                    hx-post="/split/{{ d.id }}"
+                    hx-target="#toast-container"
+                    hx-swap="afterbegin"
+                    hx-confirm="Split &quot;{{ d.name }}&quot; into individual page notebooks?">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1V13M3 5L7 1L11 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 7H5M9 7H12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              Split
+            </button>
+          {% endif %}
+        </div>
+        <div class="card-title">{{ d.name }}</div>
+        <div class="card-meta">{{ d.rel_time }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  {# ── List view ── #}
+  <div class="doc-list">
+    {% for f in folders %}
+      <a class="list-row"
+         href="/library?folder={{ f.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}"
+         hx-get="/library?folder={{ f.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}&partial=1"
+         hx-target="#main-content"
+         hx-push-url="/library?folder={{ f.id }}&view={{ view }}&sort={{ sort_by }}&dir={{ sort_dir }}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+          <path d="M2 3C1.45 3 1 3.45 1 4V12C1 12.55 1.45 13 2 13H14C14.55 13 15 12.55 15 12V5C15 4.45 14.55 4 14 4H8L6.5 2.5H2Z" fill="var(--color-text-secondary)" opacity="0.5"/>
+        </svg>
+        <span class="name">{{ f.name }}</span>
+        <span class="badge badge-default">Folder</span>
+        <span class="meta">{{ f.rel_time }}</span>
+      </a>
+    {% endfor %}
+
+    {% for d in docs %}
+      <div class="list-row">
+        <span class="doc-icon doc-icon-{{ d.file_type }}">{{ d.type_label }}</span>
+        <span class="name">{{ d.name }}</span>
+        {% if d.can_split %}
+          <button class="btn-split"
+                  hx-post="/split/{{ d.id }}"
+                  hx-target="#toast-container"
+                  hx-swap="afterbegin"
+                  hx-confirm="Split &quot;{{ d.name }}&quot; into individual page notebooks?">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1V13M3 5L7 1L11 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 7H5M9 7H12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Split
+          </button>
+        {% endif %}
+        <span class="badge badge-{{ d.badge_variant }}">{{ d.file_type }}</span>
+        <span class="meta" style="min-width:60px">{{ (d.pages | string ~ 'p') if d.pages else '' }}</span>
+        <span class="meta">{{ d.rel_time }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+</div>

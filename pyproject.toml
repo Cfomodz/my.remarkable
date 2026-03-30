@@ -1,0 +1,16 @@
+[project]
+name = "my-remarkable"
+version = "0.1.0"
+description = "reMarkable tablet library browser and notebook splitter"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "httpx",
+    "jinja2",
+    "python-dotenv",
+    "python-multipart",
+]
+
+[project.scripts]
+serve = "server:main"
